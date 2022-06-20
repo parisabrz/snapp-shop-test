@@ -1,4 +1,5 @@
 import React, { createContext, useState } from "react";
+import { v4 as uuidv4 } from 'uuid';
 import {
   CHANGE_INPUT,
   DELETE_TODO,
@@ -15,9 +16,7 @@ const initialState = {
   todos: [],
   complete_todos: [],
 };
-function getRandomInt() {
-  return Math.floor(Math.random() * (100 - 1 + 1)) + 1;
-}
+
 function TodoReducer(state, action) {
   const { type, text } = action;
   console.log(action);
@@ -30,7 +29,7 @@ function TodoReducer(state, action) {
         ...state,
         todos: [
           {
-            id: getRandomInt(),
+            id: uuidv4(),
             todo: state.inputText,
             isEditing: false,
             editingText: state.inputText,
@@ -106,15 +105,29 @@ function TodoReducer(state, action) {
         }),
       };
     case IS_COMPLETE:
-      const completeTodos = state.todos.filter(item => item.id !== action.todo.id);
-      const completed = state.todos.find(item=> item.id === action.todo.id)
-
+      // const completed = state.todos.find(item=> item.id === action.todo.id)
       return {
         ...state,
-        todos: completeTodos,
-        complete_todos: [...state.complete_todos, completed],
-        isComplete: !state.todos.isComplete,
+        todos: state.todos.map((todo) => {
+          if (todo.id === action.todo.id) {
+            return {
+              ...todo,
+              isComplete: !todo.isComplete,
+            };
+          }
+          return todo;
+        }),
+        // complete_todos: [...state.complete_todos, completed],
       };
+      // const completeTodos = state.todos.filter(item => item.id !== action.todo.id);
+      // const completed = state.todos.find(item=> item.id === action.todo.id)
+
+      // return {
+      //   ...state,
+      //   todos: completeTodos,
+      //   complete_todos: [...state.complete_todos, completed],
+      //   isComplete: !state.todos.isComplete,
+      // };
     case UNDO_COMPLETE:
       const undoTodos = state.complete_todos.splice(action.index, 1);
       return {

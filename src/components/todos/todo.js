@@ -1,60 +1,3 @@
-//           {/* ***************************************** */}
-//           <div className="deleted-todos">
-//             <h1>Deleted ToDos</h1>
-//             <ul>
-//               {reducer.deleted_Todos.map((todos_deleted, index) => {
-//                 return (
-//                   <li style={{ marginTop: "10px" }} key={todos_deleted.id}>
-//                     <span style={{ marginRight: "15px" }}>
-//                       {todos_deleted.todo}
-//                     </span>
-//                     <button
-//                       onClick={() => {
-//                         dispatch(undo_delete(todos_deleted));
-//                       }}
-//                       className="todo-btn"
-//                     >
-//                       undo
-//                     </button>
-//                   </li>
-//                 );
-//               })}
-//             </ul>
-//           </div>
-//           <div className="deleted-todos">
-//             <h1>complete todos</h1>
-//             <ul>
-//               {reducer.complete_todos.map((todo) => {
-//                 return (
-//                   <li style={{ marginTop: "10px" }} key={todo.id}>
-//                     <input
-//                       type="checkbox"
-//                       checked
-//                       style={{ borderColor: "darkgrey", color: "darkgrey" }}
-//                     />
-//                     <span className="line-into">{todo.todo}</span>
-//                     <button
-//                       className="todo-btn"
-//                       onClick={() => {
-//                         dispatch(undoComplete(todo));
-//                       }}
-//                       style={{ marginLeft: "10px" }}
-//                     >
-//                       undo
-//                     </button>
-//                   </li>
-//                 );
-//               })}
-//             </ul>
-//           </div>
-//         </div>
-//       </main>
-//     </div>
-//   );
-// }
-
-// export default Todo;
-
 import React, { useContext, useRef, useEffect, useState } from "react";
 import { TodoContext } from "./todoContext";
 import {
@@ -75,7 +18,8 @@ function Todo() {
   const { reducer, dispatch } = useContext(TodoContext);
   const inputRef = useRef(null);
   const [focus, setfocus] = useState();
-
+  const [filter, setFilter] = useState(false);
+  console.log(reducer);
   useEffect(() => {
     if (focus) {
       inputRef.current.focus();
@@ -99,61 +43,144 @@ function Todo() {
         }}
       />
       <ul>
-        {reducer.todos.map((todo) => {
-          return (
-            <li key={todo.id}>
-              {todo.isEditing ? (
-                <input
-                  ref={inputRef}
-                  type="text"
-                  value={todo.editingText}
-                  onChange={(e) => {
-                    dispatch(changeEditInput(todo, e.target.value));
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      dispatch(saveEditInput(todo));
-                      setfocus(!focus);
-                    }
-                  }}
-                  onBlur={() => {
-                    dispatch(cancleEditInput(todo));
-                    setfocus(!focus);
-                  }}
-                />
-              ) : (
-                <>
-                  <span
-                    className={todo.isComplete ? "line-into" : ""}
-                    onDoubleClick={() => {
-                      dispatch(editTodo(todo));
-                      setfocus(true);
-                    }}
-                  >
-                    {todo.todo}
-                  </span>
-                  <div>
+        {filter
+          ? reducer.todos
+              .filter((todo) => todo.isComplete === false)
+              .map((todo) => {
+                return (
+                  <li key={todo.id}>
+                    {todo.isEditing ? (
+                      <input
+                        ref={inputRef}
+                        type="text"
+                        value={todo.editingText}
+                        onChange={(e) => {
+                          dispatch(changeEditInput(todo, e.target.value));
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            dispatch(saveEditInput(todo));
+                            setfocus(!focus);
+                          }
+                        }}
+                        onBlur={() => {
+                          dispatch(cancleEditInput(todo));
+                          setfocus(!focus);
+                        }}
+                      />
+                    ) : (
+                      <>
+                        <span
+                          className={todo.isComplete ? "line-into" : ""}
+                          onDoubleClick={() => {
+                            dispatch(editTodo(todo));
+                            setfocus(true);
+                          }}
+                        >
+                          {todo.todo}
+                        </span>
+                        <div>
+                          <input
+                            type="checkbox"
+                            checked={todo.isComplete}
+                            onChange={() => {
+                              console.log("here");
+                              dispatch(isComplete(todo));
+                            }}
+                          />
+                          <FontAwesomeIcon
+                            icon={faXmark}
+                            onClick={() => {
+                              dispatch(deleteTodo(todo));
+                            }}
+                          />
+                        </div>
+                      </>
+                    )}
+                  </li>
+                );
+              })
+          : reducer.todos.map((todo) => {
+              return (
+                <li key={todo.id}>
+                  {todo.isEditing ? (
                     <input
-                      type="checkbox"
-                      checked={todo.isComplete}
-                      onChange={() => {
-                        console.log("here");
-                        dispatch(isComplete(todo));
+                      ref={inputRef}
+                      type="text"
+                      value={todo.editingText}
+                      onChange={(e) => {
+                        dispatch(changeEditInput(todo, e.target.value));
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          dispatch(saveEditInput(todo));
+                          setfocus(!focus);
+                        }
+                      }}
+                      onBlur={() => {
+                        dispatch(cancleEditInput(todo));
+                        setfocus(!focus);
                       }}
                     />
-                    <FontAwesomeIcon
-                      icon={faXmark}
-                      onClick={() => {
-                        dispatch(deleteTodo(todo));
-                      }}
-                    />
-                  </div>
-                </>
-              )}
-            </li>
-          );
-        })}
+                  ) : (
+                    <>
+                      <span
+                        className={todo.isComplete ? "line-into" : ""}
+                        onDoubleClick={() => {
+                          dispatch(editTodo(todo));
+                          setfocus(true);
+                        }}
+                      >
+                        {todo.todo}
+                      </span>
+                      <div>
+                        <input
+                          type="checkbox"
+                          checked={todo.isComplete}
+                          onChange={() => {
+                            console.log("here");
+                            dispatch(isComplete(todo));
+                          }}
+                        />
+                        <FontAwesomeIcon
+                          icon={faXmark}
+                          onClick={() => {
+                            dispatch(deleteTodo(todo));
+                          }}
+                        />
+                      </div>
+                    </>
+                  )}
+                </li>
+              );
+            })}
       </ul>
+      <>
+        {reducer.todos.length !== 0 && (
+          <div className="control-box">
+            <div>{reducer.todos.length} items left</div>
+            <div className="center-btn">
+              <button
+                onClick={() => {
+                  setFilter(false);
+                  window.history.pushState("object or string", "Title", "/all");
+                }}
+              >
+                All
+              </button>
+              <button
+                onClick={() => {
+                  setFilter(true);
+                  window.history.pushState("object or string", "Title", "/active");
+                }}
+              >
+                Active
+              </button>
+            </div>
+            <button disabled>Clear Completed</button>
+          </div>
+        )}
+      </>
     </div>
   );
 }
