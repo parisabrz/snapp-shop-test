@@ -1,6 +1,8 @@
 import React, { createContext, useState } from "react";
-import { v4 as uuidv4 } from 'uuid';
+import { remove } from "../../utils/utils";
 import {
+  ADD_TODO,
+  LOAD_TODOS,
   CHANGE_INPUT,
   DELETE_TODO,
   Edit_TODO,
@@ -9,27 +11,33 @@ import {
   CANCLE_EDIT_INPUT,
   IS_COMPLETE,
   UNDO_COMPLETE,
+  DELETE_COMPLETE,
+  SET_FILTER
 } from "./todoActions";
 
 const initialState = {
   inputText: "",
   todos: [],
   complete_todos: [],
+  filter: false,
 };
 
 function TodoReducer(state, action) {
   const { type, text } = action;
-  console.log(action);
-  console.log(initialState.todos);
-
   switch (type) {
-    case "ADD_TODO":
+    case LOAD_TODOS:
+      return {
+        ...state,
+        todos: action.todos,
+      };
+    case ADD_TODO:
       if (!state.inputText) return state;
+      
       return {
         ...state,
         todos: [
           {
-            id: uuidv4(),
+            id: action.id,
             todo: state.inputText,
             isEditing: false,
             editingText: state.inputText,
@@ -39,13 +47,16 @@ function TodoReducer(state, action) {
         ],
         inputText: "",
       };
+
     case CHANGE_INPUT:
       return {
         ...state,
         inputText: text,
       };
     case DELETE_TODO:
-      const deletedTodos = state.todos.filter(item => item.id !== action.todo.id);
+      const deletedTodos = state.todos.filter(
+        (item) => item.id !== action.todo.id
+      );
       return {
         ...state,
         todos: deletedTodos,
@@ -78,18 +89,18 @@ function TodoReducer(state, action) {
       };
     case SAVE_EDIT_INPUT:
       return {
-				...state,
-				todos: state.todos.map((todo) => {
-					if (todo.id === action.todo.id) {
-						return {
-							...todo,
-							todo: todo.editingText,
-							isEditing: false
-						};
-					}
-					return todo;
-				})
-			};
+        ...state,
+        todos: state.todos.map((todo) => {
+          if (todo.id === action.todo.id) {
+            return {
+              ...todo,
+              todo: todo.editingText,
+              isEditing: false,
+            };
+          }
+          return todo;
+        }),
+      };
     case CANCLE_EDIT_INPUT:
       return {
         ...state,
@@ -105,7 +116,6 @@ function TodoReducer(state, action) {
         }),
       };
     case IS_COMPLETE:
-      // const completed = state.todos.find(item=> item.id === action.todo.id)
       return {
         ...state,
         todos: state.todos.map((todo) => {
@@ -117,17 +127,8 @@ function TodoReducer(state, action) {
           }
           return todo;
         }),
-        // complete_todos: [...state.complete_todos, completed],
       };
-      // const completeTodos = state.todos.filter(item => item.id !== action.todo.id);
-      // const completed = state.todos.find(item=> item.id === action.todo.id)
 
-      // return {
-      //   ...state,
-      //   todos: completeTodos,
-      //   complete_todos: [...state.complete_todos, completed],
-      //   isComplete: !state.todos.isComplete,
-      // };
     case UNDO_COMPLETE:
       const undoTodos = state.complete_todos.splice(action.index, 1);
       return {
@@ -136,6 +137,23 @@ function TodoReducer(state, action) {
         complete_todos: [...state.complete_todos],
         isComplete: !state.todos.isComplete,
       };
+
+    case DELETE_COMPLETE:
+      const deletedComplete = state.todos.filter((item) => !item.isComplete);
+      state.todos.forEach((item) => {
+        if (item.isComplete) {
+          remove(item);
+        }
+      });
+      return {
+        ...state,
+        todos: deletedComplete,
+      };
+    case SET_FILTER:
+      return{
+        ...state,
+        filter: !state.filter
+      }
     default:
       return state;
   }

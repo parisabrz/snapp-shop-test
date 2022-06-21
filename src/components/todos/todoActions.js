@@ -1,6 +1,12 @@
+export const LOAD_TODOS = 'LOAD_TODOS';
+export const loadTodos = (todos) => ({
+	type: LOAD_TODOS,
+	todos
+});
 export const ADD_TODO = 'ADD_TODO';
-export const addTodo = () => ({
-	type: ADD_TODO
+export const addTodo = (id) => ({
+	type: ADD_TODO,
+	id
 });
 
 export const CHANGE_INPUT = 'CHANGE_INPUT';
@@ -56,4 +62,14 @@ export const UNDO_COMPLETE = 'UNDO_COMPLETE';
 export const undoComplete = (todo) => ({
 	type: UNDO_COMPLETE,
 	todo
+});
+
+export const DELETE_COMPLETE = 'DELETE_COMPLETE';
+export const deletedComplete = () => ({
+	type: DELETE_COMPLETE,
+});
+
+export const SET_FILTER= 'SET_FILTER';
+export const setFilter = () => ({
+	type: SET_FILTER,
 });
